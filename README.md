@@ -9,3 +9,4 @@
 + [竞赛了解](https://www.kaggle.com/competitions)
 + [Kaggle Competition Past Solutions](http://www.chioka.in/kaggle-competition-solutions/)
 + [How am I doing with my score ?(Based on Titanic project)](https://www.kaggle.com/pliptor/how-am-i-doing-with-my-score)
++ [Binary Classification of Breast Cancer](https://www.kaggle.com/mirichoi0218/classification-breast-cancer-or-not-wiqth-15-ml/notebook)
