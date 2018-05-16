@@ -239,12 +239,11 @@ teachers <- teachers[,c("Teacher ID","Teacher Prefix","Gender","Years")]
 ```
 
 ## Schools Data EDA{.tabset}
-### Statewise
+### Statewise Distribution of Schools
 
     - Different School ID may have same school name;
-    - 
     
-```{r}
+```{r Statewise Distribution of Schools}
 Stat_State <- as.data.frame(table(schools$`School State`))
 names(Stat_State) <- c("State","School Number")
 Stat_State$State <- tolower(as.character(Stat_State$State))
@@ -264,20 +263,41 @@ ggplot(Stat_State, aes(map_id = State, fill = `School Number`)) +
           legend.background = element_blank(), legend.key = element_blank())
 ```
 
-### City or Rural ?
+### Percentage of School Metro Type 
+   
+    - Conclusion:
     
-    - pie chart
-```{r}
+```{r Schools Metro Type}
 total_rows <- nrow(schools)
 Stat_Metro <- as.data.frame(table(schools$`School Metro Type`), stringsAsFactors = FALSE)
 names(Stat_Metro) <- c("Metro Type","Count")
 Stat_Metro$Partition <- Stat_Metro$Count/total_rows*100
 Stat_Metro$`Metro Type` <- as.character(Stat_Metro$`Metro Type`)
-Stat_Metro <- Stat_Metro[order(Stat_Metro$Count, decreasing = TRUE),]
+Stat_Metro$`Metro Type` <- reorder(Stat_Metro$`Metro Type`, Stat_Metro$Count)
 ggplot(Stat_Metro, aes(x = Stat_Metro$`Metro Type`, y = Count)) + 
-    geom_bar(stat = "identity",fill= "cyan3") + 
-    geom_text(aes(x = `Metro Type`, y = 1, label = paste0("( ",round(Stat_Metro$Partition,2)," %)",sep="")),
-              hjust=-0.2, vjust=.5, size = 4, colour = 'hotpink4',
+    geom_bar(stat = "identity", fill= "tan3", width = 0.5) + 
+    geom_text(aes(x = `Metro Type`, y = 1, label = paste0(round(Stat_Metro$Partition,2)," %",sep="")),
+              hjust=-0.2, vjust=.5, size = 4, colour = 'navy',
               fontface = 'bold') +
-    coord_flip()
+    coord_flip() + xlab("Schools Metro Type") + ylab("Count of Schools Metro Type")
+```
+
+### Free Lunch Distribution by School Metro Type
+    
+    - Conclusion:
+    
+```{r}
+schools_2 <- schools[which(schools$`School Metro Type` != "unknown"), c(3,4)]
+ggplot(schools_2, aes(x = `School Percentage Free Lunch`, y = ..density..)) + 
+    geom_histogram(fill = "darkseagreen", colour = "ghostwhite", size = 0.4) +
+    geom_density() + facet_wrap(~ `School Metro Type`, nrow = 2)
+```
+
+## Resources Data EDA{.tabset}
+### 
+```{r}
+resources$`Resource Total Price` <- resources$`Resource Quantity` * resources$`Resource Unit Price`
+ggplot(resources, aes(x = `Resource Total Price`, y = ..density..)) + 
+    geom_histogram(fill = "slateblue1", colour = "thistle4", size = 0.4) +
+    geom_density()
 ```
