@@ -38,6 +38,8 @@ library('tibble')
 
 # Visualization
 library('ggplot2')
+library('maps')
+library('mapproj')
 ```
 
 ## Data Importing
@@ -180,11 +182,12 @@ knitr::kable(head(donors), format = "markdown")
 
 # Explore Data Analysis
 Based on the files and tables above, we can see that there are a lot columns and infomations.So I do not think it's a good idea that we follow the traditional way to explore the data **one column by one column** for more infomations, not to mention we are really lack of domain knowledges and understanding of funding. In my opinion, focusing on some basic facts may discover more useful experiences, such as the following:
-    + to be continued...
 
-## Teacher Data EDA{.tabset}
+    - to be continued...
 
-### Teacher First Project Posted Date 
+## Teachers Data EDA{.tabset}
+
+### Teacher First Project Posted Date by Prefix
 ```{r Teacher First Project Posted Date}
 teachers$Year_Month <- substr(teachers$`Teacher First Project Posted Date`, start = 1, stop = 7)
 teachers_by_month <- as.data.frame(table(teachers$`Teacher Prefix`, teachers$Year_Month))
@@ -204,19 +207,77 @@ ggplot(teachers_by_month, aes(x = `Year_Month`, y = `Amount`, colour = `Prefix`,
           legend.text = element_text(colour = "lightblue4"),
           axis.text = element_text(colour = "royalblue3")) + 
     xlab("Year-Month") + ylab("Amount of Teacher First Project Posted")
+
+rm(teachers_by_month)
+gc()
 ```
 
-
+### Teachers' Experiences of Posting Projects
 ```{r}
-teachers$years <- (as.integer(strptime(Sys.Date(),"%Y-%m-%d")-
-                                strptime(teachers$`Teacher First Project Posted Date`,"%Y-%m-%d")))/365
-teachers_by_years <- as.data.frame(table(teachers$`Teacher Prefix`, round(teachers$years, digits = 3)))
-names(teachers_by_years) <- c("Prefix", "Years of Expreiences", "Amount of Teachers")
+teachers$Years <- (as.integer(strptime(Sys.Date(),"%Y-%m-%d")-strptime(teachers$`Teacher First Project Posted Date`,"%Y-%m-%d")))/365
+teachers_by_years <- as.data.frame(table(teachers$`Teacher Prefix`, round(teachers$Years, digits = 3)))
+names(teachers_by_years) <- c("Prefix", "Years of Experiences", "Amount of Teachers")
 teachers_by_years <- teachers_by_years[which(teachers_by_years$Prefix != ""),]
 
-teachers_by_years$`Years of Expreiences` <- as.numeric(as.character(teachers_by_years$`Years of Expreiences`))
+teachers_by_years$`Years of Experiences` <- as.numeric(as.character(teachers_by_years$`Years of Experiences`))
 
-ggplot(teachers_by_years, aes(x = `Years of Expreiences`, fill = Prefix)) + geom_density(alpha = 0.3) +
-    facet_grid(Prefix ~.)
+ggplot(teachers_by_years, aes(x = `Years of Experiences`, fill = Prefix)) + 
+    geom_density(alpha = 0.3) +
+    facet_grid(Prefix ~.) + 
+    xlab("Experiencesfor Project Posting on DonorsChoose.Org\n(Years)") +
+    ylab("Distribution of Density")
+
+rm(teachers_by_years, month_break)
+```
+
+### What We Get
+```{r}
+teachers$Gender <- "Unknown"
+teachers$Gender[which(teachers$`Teacher Prefix` == "Mr.")] <- "Male"
+teachers$Gender[which(teachers$`Teacher Prefix` == "Ms." | teachers$`Teacher Prefix` == "Mrs.")] <- "Female"
+teachers <- teachers[,c("Teacher ID","Teacher Prefix","Gender","Years")]
+```
+
+## Schools Data EDA{.tabset}
+### Statewise
+
+    - Different School ID may have same school name;
+    - 
     
+```{r}
+Stat_State <- as.data.frame(table(schools$`School State`))
+names(Stat_State) <- c("State","School Number")
+Stat_State$State <- tolower(as.character(Stat_State$State))
+map_data <- map_data("state")
+
+ggplot(Stat_State, aes(map_id = State, fill = `School Number`)) +
+    geom_map(map = map_data, colour = 'black') +
+    scale_fill_gradient2(low = "SkyBlue", mid = "White",high = "OrangeRed") + 
+    expand_limits(x = map_data$long, y = map_data$lat) +
+    scale_x_continuous(limits=c(-121,-67)) +
+    scale_y_continuous(limits=c(25,50)) +
+    coord_map("polyconic") +
+    xlab("longitude") +
+    ylab("latitude") + 
+    ggtitle("Statewise Distribution of Schools\n(Where Donation requests produced)") +
+    theme(legend.position = c(1,0), legend.justification = c(1,0),
+          legend.background = element_blank(), legend.key = element_blank())
+```
+
+### City or Rural ?
+    
+    - pie chart
+```{r}
+total_rows <- nrow(schools)
+Stat_Metro <- as.data.frame(table(schools$`School Metro Type`), stringsAsFactors = FALSE)
+names(Stat_Metro) <- c("Metro Type","Count")
+Stat_Metro$Partition <- Stat_Metro$Count/total_rows*100
+Stat_Metro$`Metro Type` <- as.character(Stat_Metro$`Metro Type`)
+Stat_Metro <- Stat_Metro[order(Stat_Metro$Count, decreasing = TRUE),]
+ggplot(Stat_Metro, aes(x = Stat_Metro$`Metro Type`, y = Count)) + 
+    geom_bar(stat = "identity",fill= "cyan3") + 
+    geom_text(aes(x = `Metro Type`, y = 1, label = paste0("( ",round(Stat_Metro$Partition,2)," %)",sep="")),
+              hjust=-0.2, vjust=.5, size = 4, colour = 'hotpink4',
+              fontface = 'bold') +
+    coord_flip()
 ```
