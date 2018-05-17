@@ -12,7 +12,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+knitr::opts_chunk$set(echo = TRUE, warning=TRUE, message=TRUE)
 ```
 
 # Intro & Purpose
@@ -46,18 +46,20 @@ library('mapproj')
 All the data provided by csv format, in **6 files** with size of **3.71 GB** totally on Windows.
 
 ```{r data importing}
-donations <- as.tibble(fread(input = "D:/DataSet/Kaggle/DonorsChoose/Donations.csv", header = TRUE, sep = ","))
-
-donors <- as.tibble(fread("D:/DataSet/Kaggle/DonorsChoose/Donors.csv", header = TRUE, sep = ","))
-
-projects <- as.tibble(fread("D:/DataSet/Kaggle/DonorsChoose/Projects.csv", header = TRUE, sep = ","))
-
+donations <- as.tibble(fread("D:/DataSet/Kaggle/DonorsChoose/Donations.csv", header = TRUE, sep = ","))
+donors    <- as.tibble(fread("D:/DataSet/Kaggle/DonorsChoose/Donors.csv", header = TRUE, sep = ","))
+projects  <- as.tibble(fread("D:/DataSet/Kaggle/DonorsChoose/Projects.csv", header = TRUE, sep = ","))
 resources <- as.tibble(fread("D:/DataSet/Kaggle/DonorsChoose/Resources.csv", header = TRUE, sep = ","))
-                             
-schools <- as.tibble(fread("D:/DataSet/Kaggle/DonorsChoose/Schools.csv", header = TRUE, sep = ","))
-
-teachers <- as.tibble(fread("D:/DataSet/Kaggle/DonorsChoose/Teachers.csv", header = TRUE, sep = ","))
+schools   <- as.tibble(fread("D:/DataSet/Kaggle/DonorsChoose/Schools.csv", header = TRUE, sep = ","))
+teachers  <- as.tibble(fread("D:/DataSet/Kaggle/DonorsChoose/Teachers.csv", header = TRUE, sep = ","))
 ```
+
+# donations <- as.tibble(fread("../input/Donations.csv"))
+# donors    <- as.tibble(fread("../input/Donors.csv"))
+# projects  <- as.tibble(fread("../input/Projects.csv"))
+# resources <- as.tibble(fread("../input/Resources.csv"))
+# schools   <- as.tibble(fread("../input/Schools.csv"))
+# teachers  <- as.tibble(fread("../input/Teachers.csv"))
 
 \pagebreak
 
@@ -284,20 +286,51 @@ ggplot(Stat_Metro, aes(x = Stat_Metro$`Metro Type`, y = Count)) +
 
 ### Free Lunch Distribution by School Metro Type
     
-    - Conclusion:
+    * Conclusion:
     
 ```{r}
-schools_2 <- schools[which(schools$`School Metro Type` != "unknown"), c(3,4)]
+schools_2 <- schools[which(schools$`School Metro Type` != "unknown" & 
+                               is.na(schools$`School Percentage Free Lunch`) != 1), c(3,4)]
 ggplot(schools_2, aes(x = `School Percentage Free Lunch`, y = ..density..)) + 
-    geom_histogram(fill = "darkseagreen", colour = "ghostwhite", size = 0.4) +
+    geom_histogram(bins = 20, fill = "darkseagreen", colour = "ghostwhite", size = 0.4) +
     geom_density() + facet_wrap(~ `School Metro Type`, nrow = 2)
 ```
 
 ## Resources Data EDA{.tabset}
-### 
-```{r}
+
++ Conclutions:
+    + 
+
+```{r, fig.height=5, fig.width=10}
 resources$`Resource Total Price` <- resources$`Resource Quantity` * resources$`Resource Unit Price`
-ggplot(resources, aes(x = `Resource Total Price`, y = ..density..)) + 
-    geom_histogram(fill = "slateblue1", colour = "thistle4", size = 0.4) +
-    geom_density()
+resources$`Resource Vendor Name`[which(resources$`Resource Vendor Name` == "")] <- "Unknown"
+Stat_Vendor <- as.data.frame(table(resources$`Resource Vendor Name`), stringsAsFactors = FALSE)
+names(Stat_Vendor) <- c("Vender Name","Projects Count")
+
+ggplot(Stat_Vendor, aes(x = reorder(Stat_Vendor$`Vender Name`, Stat_Vendor$`Projects Count`), 
+                        y = Stat_Vendor$`Projects Count`)) + geom_point(size = 2.5) + 
+    theme(axis.text.x = element_text(angle = 30, hjust = 1),
+          panel.grid.major.x = element_line(colour = "orange", linetype = "dashed")) +
+    xlab("Vender Name") + ylab("Projects Count") + ggtitle("Projects Count by Vender Name")
+
+Stat_Vendor_2 <- Stat_Vendor[which(Stat_Vendor$`Vender Name` != "Amazon Business" &
+                                   Stat_Vendor$`Vender Name` != "Lakeshore Learning Materials" &
+                                   Stat_Vendor$`Vender Name` != "AKJ Education"),]
+ggplot(Stat_Vendor_2, aes(x = reorder(Stat_Vendor_2$`Vender Name`, Stat_Vendor_2$`Projects Count`), 
+                          y = Stat_Vendor_2$`Projects Count`)) + geom_point(size = 2.5) + 
+    theme(axis.text.x = element_text(angle = 30, hjust = 1),
+          panel.grid.major.x = element_line(colour = "darkseagreen", linetype = "dashed")) +
+    xlab("Vender Name") + ylab("Projects Count") + 
+    ggtitle("Projects Count by Vender Name\n(without BIG 3:Amazon Business/Lakeshore Learning Materials/AKJ Education)")
 ```
+
+```{r, echo = FALSE}
+rm(Stat_Vendor, Stat_Vendor_2)
+gc()
+```
+
+## Donors Data EDA{.tabset}
+
+## Donations Data EDA{.tabset}
+
+## Project Data EDA
