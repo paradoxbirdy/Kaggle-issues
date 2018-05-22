@@ -331,6 +331,12 @@ gc()
 
 ## Donors Data EDA{.tabset}
 
++ Conclutions:
+
+```{r}
+
+```
+
 ## Donations Data EDA{.tabset}
 
 ## Project Data EDA
