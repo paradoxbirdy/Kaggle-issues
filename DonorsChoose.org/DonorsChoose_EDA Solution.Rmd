@@ -333,10 +333,71 @@ gc()
 
 + Conclutions:
 
-```{r}
+```{r, fig.height=15, fig.width=10}
+teacher_donors_by_state <- as.data.frame(table(donors$`Donor State`, donors$`Donor Is Teacher`),
+                                         stringsAsFactors = FALSE)
+names(teacher_donors_by_state) <- c("State","Level","Count")
+teacher_donors_by_state_yes <- teacher_donors_by_state[which(teacher_donors_by_state$Level == "Yes"),c(1,3)]
+names(teacher_donors_by_state_yes)[2] <- "Yes"
+teacher_donors_by_state_no  <- teacher_donors_by_state[which(teacher_donors_by_state$Level == "No"),c(1,3)]
+names(teacher_donors_by_state_no)[2] <- "No"
+teacher_donors_by_state <- merge.data.frame(teacher_donors_by_state_yes, teacher_donors_by_state_no, by = "State")
+teacher_donors_by_state$Non_teacher_ratio <- round(teacher_donors_by_state$No / 
+    (teacher_donors_by_state$Yes + teacher_donors_by_state$No), digits = 3) 
+
+teacher_donors_by_state$State <- reorder(teacher_donors_by_state$State, teacher_donors_by_state$Non_teacher_ratio)
+ggplot(teacher_donors_by_state, aes(x = State, y = Non_teacher_ratio)) + 
+    geom_bar(stat = "identity", fill= "grey70", width = 0.7) + 
+    geom_text(aes(x = State, y = 0.01, 
+                  label = paste0(round(teacher_donors_by_state$Non_teacher_ratio * 100,2)," %",sep="")),
+              hjust=-0.2, vjust=.5, size = 4, colour = 'navy',
+              fontface = 'bold') + 
+    coord_flip() + xlab("State") + ylab("Ratio of Non-Teacher Count") 
 
 ```
 
 ## Donations Data EDA{.tabset}
 
++ Conclutions：
+
+```{r}
+donations$`Donation Included Optional Donation` <- as.factor(donations$`Donation Included Optional Donation`) 
+summary(donations$`Donation Included Optional Donation`)
+```
+
+```{r}
+summary(donations$`Donation Amount`)
+```
+
+```{r}
+summary(donations$`Donor Cart Sequence`)
+```
+
+```{r}
+print(nrow(donations[which(donations$`Donor Cart Sequence` == 1),])/nrow(donations))
+```
+
+```{r, fig.height=4, fig.width=8}
+donations$Year <- substr(donations$`Donation Received Date`, start = 1, stop = 4)
+ggplot(donations, aes(x = Year, fill = `Donation Included Optional Donation`)) +
+    geom_histogram(stat="count",alpha = 0.7) +
+    theme(legend.position = "bottom")
+```
+
 ## Project Data EDA
+
+```{r feature selection}
+projects_simple <- projects[,c(-7,-8,-9)]
+summary(projects_simple$`Project Cost`)
+summary(as.factor(projects_simple$`Project Type`))
+summary(as.factor(projects_simple$`Project Grade Level Category`))
+summary(as.factor(projects_simple$`Project Resource Category`))
+summary(as.factor(projects_simple$`Project Current Status`))
+summary(as.factor(projects_simple$`Project Subject Category Tree`))
+summary(as.factor(projects_simple$`Project Subject Subcategory Tree`))
+
+```
+
+# Big Table(Exclude Text)
+
+## merge
