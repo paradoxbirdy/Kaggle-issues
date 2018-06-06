@@ -22,11 +22,11 @@ knitr::opts_chunk$set(echo = TRUE, warning=TRUE, message=TRUE)
 ## Mission
 A good solution will enable DonorsChoose.org to build **targeted email campaigns recommending specific classroom requests to prior donors**. Part of the challenge is to assess the needs of the organization, uncover insights from the data available, and build the right solution for this problem.
 
-\pagebreak
 
-# Load Packages and Data Importing
+
+# Packages and Data
 ## Packages to Use
-For this mission, we need to library packages for data-manipulation, visualization, RMarkdown writing and  non-supervised algorithm.
+For this mission, we need to library packages for **Data-Manipulation**, **Data-Visualization**, **RMarkdown-Coding** and **Non-Supervised Algorithms**.
 
 ```{r package loading, results='hide'}
 # Reproducible-Research 
@@ -43,27 +43,26 @@ library('mapproj')
 ```
 
 ## Data Importing
-All the data provided by csv format, in **6 files** with size of **3.71 GB** totally on Windows.
+All the data provided by csv format, in **6 files** with size of **3.71 GB** totally on Windows-System.
 
 ```{r data importing}
 donations <- as.tibble(fread("D:/DataSet/Kaggle/DonorsChoose/Donations.csv", header = TRUE, sep = ","))
-donors    <- as.tibble(fread("D:/DataSet/Kaggle/DonorsChoose/Donors.csv", header = TRUE, sep = ","))
-projects  <- as.tibble(fread("D:/DataSet/Kaggle/DonorsChoose/Projects.csv", header = TRUE, sep = ","))
+donors    <- as.tibble(fread("D:/DataSet/Kaggle/DonorsChoose/Donors.csv",    header = TRUE, sep = ","))
+projects  <- as.tibble(fread("D:/DataSet/Kaggle/DonorsChoose/Projects.csv",  header = TRUE, sep = ","))
 resources <- as.tibble(fread("D:/DataSet/Kaggle/DonorsChoose/Resources.csv", header = TRUE, sep = ","))
-schools   <- as.tibble(fread("D:/DataSet/Kaggle/DonorsChoose/Schools.csv", header = TRUE, sep = ","))
-teachers  <- as.tibble(fread("D:/DataSet/Kaggle/DonorsChoose/Teachers.csv", header = TRUE, sep = ","))
-```
-
+schools   <- as.tibble(fread("D:/DataSet/Kaggle/DonorsChoose/Schools.csv",   header = TRUE, sep = ","))
+teachers  <- as.tibble(fread("D:/DataSet/Kaggle/DonorsChoose/Teachers.csv",  header = TRUE, sep = ","))
 # donations <- as.tibble(fread("../input/Donations.csv"))
 # donors    <- as.tibble(fread("../input/Donors.csv"))
 # projects  <- as.tibble(fread("../input/Projects.csv"))
 # resources <- as.tibble(fread("../input/Resources.csv"))
 # schools   <- as.tibble(fread("../input/Schools.csv"))
 # teachers  <- as.tibble(fread("../input/Teachers.csv"))
+```
 
-\pagebreak
 
-# First Look of the Data Files{.tabset .tabset-fade .tabset-pills} 
+
+# First Look of Data Files{.tabset .tabset-fade .tabset-pills} 
 ## Project Data{.tabset}
 This dataset contains information on all projects posted on [DonorsChoose.org](https://www.donorschoose.org/) site in the past five years and four months, between **2013-01-01** and **2018-05-01**. Each row in this dataset represents a single project and each column is an attribute of the project.
 
@@ -78,8 +77,9 @@ summary(projects)
 ```
 
 ### head
-Belowing table neglects column **Project Essay** because of the column includes essay text for describing, not suitable and necessary for show here. 
-```{r project data:head}
+Belowing table neglects column **Project Essay** because of the column includes essay text for describing, not suitable and necessary for show here.
+
+```{r project data-head}
 knitr::kable(head(projects[1:4]), format = "markdown")
 knitr::kable(head(projects[c(5:6,8:9)]), format = "markdown")
 knitr::kable(head(projects[10:15]), format = "markdown")
